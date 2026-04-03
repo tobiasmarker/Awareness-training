@@ -325,16 +325,15 @@ body.dark-mode .htile.green{border-color:#2a425b}
 
 
 @media(max-width:700px){
-  .sc-intro-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:#1a3a6b;border:none;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;margin-bottom:8px;letter-spacing:.3px}
-  .sc-intro-toggle .tog-arrow{font-size:11px;transition:transform .25s}
-  .sc-intro-toggle.open .tog-arrow{transform:rotate(180deg)}
-  .sc-intro-wrap{overflow:hidden;max-height:0;transition:max-height .35s ease;margin-bottom:0}
-  .sc-intro-wrap.open{max-height:2000px;margin-bottom:12px}
-  body.dark-mode .sc-intro-toggle{background:#0d1e30;border:1px solid #2a415e}
+  .menu-group-head{cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 8px 10px}
+  .menu-group-head::after{content:"\25BC";font-size:10px;color:#6f88a2;transition:transform .25s;flex-shrink:0;margin-left:8px}
+  .menu-group.collapsed .menu-group-head::after{transform:rotate(-90deg)}
+  .menu-group-body{transition:max-height .3s ease,opacity .25s ease;overflow:hidden;max-height:800px;opacity:1}
+  .menu-group.collapsed .menu-group-body{max-height:0;opacity:0}
 }
 @media(min-width:701px){
-  .sc-intro-toggle{display:none!important}
-  .sc-intro-wrap{max-height:none!important;overflow:visible!important;margin-bottom:0}
+  .menu-group-head{cursor:default}
+  .menu-group-body{max-height:none!important;opacity:1!important}
 }
 </style>
 </head>
@@ -644,6 +643,14 @@ function rMenu(){
     d.addEventListener("click",function(){openMenuView(d.getAttribute("data-view"));});
     d.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openMenuView(d.getAttribute("data-view"));}});
   });
+  el.querySelectorAll(".menu-group-head").forEach(function(head){
+    head.addEventListener("click",function(){
+      if(window.innerWidth<=700){
+        var group=head.closest(".menu-group");
+        if(group)group.classList.toggle("collapsed");
+      }
+    });
+  });
 }
 
 function tile(icon,title,desc,status,cls,viewOrNull){
@@ -839,23 +846,8 @@ function rSc(a){
       "<div class=\"pbar-c\"><div class=\"pbar\" style=\"width:"+(S.scIdx/tot*100)+"%\"></div></div>"+
       "<h1>"+s.title+"</h1><p>"+s.setup+"</p>"+
       "<div class=\"sbox\"><div class=\"from\">"+s.from+"</div>"+body+"</div>");
-    // Mobile collapsible scenario card
-  var togBtn=document.createElement("button");
-  togBtn.className="sc-intro-toggle";
-  togBtn.type="button";
-  togBtn.innerHTML="<span>&#128203; View Scenario Details</span><span class=\"tog-arrow\">&#9660;</span>";
-  var wrap=document.createElement("div");
-  wrap.className="sc-intro-wrap";
-  wrap.appendChild(intro);
-  a.appendChild(togBtn);
-  a.appendChild(wrap);
-  bindHomeButtons(intro);
-  togBtn.addEventListener("click",function(){
-    var isOpen=wrap.classList.contains("open");
-    wrap.classList.toggle("open",!isOpen);
-    togBtn.classList.toggle("open",!isOpen);
-    togBtn.querySelector("span:first-child").textContent=isOpen?"📋 View Scenario Details":"📋 Hide Scenario Details";
-  });
+    a.appendChild(intro);
+    bindHomeButtons(intro);
   }
   var qc=mkCard((S.scQ===0&&!S.scAns?"":"<div class=\"top-actions\"><div class=\"btn-row\"><button class=\"btn secondary nav-home-btn\" type=\"button\">Return to Menu</button></div><div class=\"hint\">You can go back to the menu between questions too.</div></div>")+"<div class=\"qnum\">"+q.n+"</div><div class=\"question\">"+q.q+"</div>"+
     "<div class=\"options\" id=\"sopts\"></div><div id=\"sfb\"></div><div id=\"snb\"></div>");
